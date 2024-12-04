@@ -1,0 +1,35 @@
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+
+class TestCalculaDataDevolucao {
+
+     @Test
+    void testCalculaDataDeDevolucao() {
+        LocalDate fixedDate = LocalDate.of(2024, 12, 1);  // Data fixa
+        Clock clock = Clock.fixed(fixedDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+        
+        Emprestimo emprestimo = new Emprestimo(clock);  // Usando o Clock fixo
+        List<Livro> livros = new ArrayList<>();
+        livros.add(new Livro(1));  // Livro com prazo de 2 dias
+        
+        Date dataDevolucao = emprestimo.calculaDataDevolucao(livros);
+        assertEquals(LocalDate.of(2024, 12, 3), dataDevolucao.toLocalDate());
+    }
+
+    @Test
+    void testCalculaDataDeDevolucaoComDataInvalida() {
+        Emprestimo emprestimo = new Emprestimo();
+        List<Livro> livros = new ArrayList<>();
+        
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            emprestimo.calculaDataDevolucao(livros);  // Nenhum livro para calcular a data de devolução
+        });
+        
+        assertEquals("Nenhum livro foi emprestado", thrown.getMessage());
+    }
+}
