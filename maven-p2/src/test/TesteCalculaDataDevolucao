@@ -4,36 +4,41 @@ import part2.barbara.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-class TestCalculaDataDevolucao {
+class TestControler {
 
-     @Test
-    void testCalculaDataDeDevolucao() {
-        LocalDate fixedDate = LocalDate.of(2024, 12, 1);  // Data fixa
-        Clock clock = Clock.fixed(fixedDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+    @ParameterizedTest
+    @CsvSource({
+        "123, true",  // RA verificado
+        "999, false"  // RA não verificado
+    })
+    void testEmprestimoParaAlunoVerificado(String ra, boolean esperado) {
+        Controle controle = new Controle();
+        int[] prazos = {2};  // 1 livro
+        boolean retorno = controle.emprestar(ra, prazos.length, prazos);
         
-        Emprestimo emprestimo = new Emprestimo(clock);  // Usando o Clock fixo
-        List<Livro> livros = new ArrayList<>();
-        livros.add(new Livro(1));  // Livro com prazo de 2 dias
-        
-        Date dataDevolucao = emprestimo.calculaDataDevolucao(livros);
-        assertEquals(LocalDate.of(2024, 12, 3), dataDevolucao.toLocalDate());
+        assertEquals(esperado, retorno);
     }
 
-    @Test
-    void testCalculaDataDeDevolucaoComDataInvalida() {
-        Emprestimo emprestimo = new Emprestimo();
-        List<Livro> livros = new ArrayList<>();
-        
+     @Test
+    void testControleEmprestimoComRaNulo() {
+        Controle controle = new Controle();
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            emprestimo.calculaDataDevolucao(livros);  // Nenhum livro para calcular a data de devolução
+            controle.emprestar(null, 3, new int[]{1, 2, 3});
         });
         
-        assertEquals("Nenhum livro foi emprestado", thrown.getMessage());
+        assertEquals("RA do aluno não pode ser nulo", thrown.getMessage());
+    }
+
+   @Test
+    void testControleEmprestimoComNumeroInvalidoDeLivros() {
+        Controle controle = new Controle();
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            controle.emprestar("123", -1, new int[]{1, 2, 3});  // Número de livros inválido
+        });
+        
+        assertEquals("Número de livros inválido", thrown.getMessage());
     }
 }
