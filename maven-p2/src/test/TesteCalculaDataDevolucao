@@ -1,3 +1,7 @@
+package test;
+
+import part2.barbara.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import java.time.Clock;
